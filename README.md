@@ -1,4 +1,4 @@
-﻿[![Downloads](https://img.shields.io/github/downloads/LaFesta1749/Scp914Teleporter-Exiled/total?label=Downloads\&color=333333\&style=for-the-badge)](https://github.com/LaFesta1749/Scp914Teleporter-Exiled/releases/latest)
+﻿[![Downloads](https://img.shields.io/github/downloads/LaFesta1749/ParlamataCoinFlips/total?label=Downloads\&color=333333\&style=for-the-badge)](https://github.com/LaFesta1749/ParlamataCoinFlips/releases/latest)
 [![Discord](https://img.shields.io/badge/Discord-Join-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/PTmUuxuDXQ)
 
 # ParlamataCoinFlips

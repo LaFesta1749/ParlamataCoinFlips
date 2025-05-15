@@ -102,5 +102,5 @@ MIT – Do whatever you want, just don't remove credits.
 
 ## 🛠 Built With
 
-* [Exiled](https://github.com/Exiled-Team/EXILED) 9.6.0-beta7
+* [Exiled](https://github.com/ExMod-Team/EXILED/releases) 9.6.0-beta7
 * [HintServiceMeow](https://github.com/MeowServer/HintServiceMeow) v5.4.0 Beta 2

@@ -380,17 +380,21 @@ namespace ParlamataCoinFlips.Handlers
                     break;
 
                 case "inventory_swap":
-                    var target = Player.List.FirstOrDefault(p => p != player && p.IsAlive && !Config.GlobalSettings.IgnoredRolesForSwap.Contains(p.Role.Type.ToString()));
+                    var target = Player.List
+                        .Where(p => p != player && p.IsAlive && p.Role.Side != Side.Scp && p.Role.Type != RoleTypeId.None && p.Role.Type != RoleTypeId.Spectator)
+                        .ToList()
+                        .GetRandom();
+
                     if (target != null)
                     {
-                        var tempInv = player.Items.ToList();
-                        player.ClearInventory();
+                        var tempInv = player.Items.ToList(); // Запази копие на текущия инвентар на player
+                        player.ClearInventory(); // Изчисти неговия инвентар
 
-                        foreach (var item in target.Items)
+                        foreach (var item in target.Items) // Прехвърли item-ите от target към него
                             player.AddItem(item.Type);
 
-                        target.ClearInventory();
-                        foreach (var item in tempInv)
+                        target.ClearInventory(); // Изчисти инвентара на target
+                        foreach (var item in tempInv) // Дай на target предишните item-и на player
                             target.AddItem(item.Type);
 
                         HintManager.ShowHint(player, $"🎒 You swapped inventories with {target.Nickname}", 3f);
@@ -400,7 +404,6 @@ namespace ParlamataCoinFlips.Handlers
 
                 case "handcuff":
                     player.Handcuff();
-                    player.ClearInventory();
                     HintManager.ShowHint(player, "🔗 You’ve been cuffed and disarmed!", 3f);
                     break;
 

@@ -1,27 +1,27 @@
-﻿[![Downloads](https://img.shields.io/github/downloads/LaFesta1749/ParlamataCoinFlips/total?label=Downloads\&color=333333\&style=for-the-badge)](https://github.com/LaFesta1749/ParlamataCoinFlips/releases/latest)
-[![Discord](https://img.shields.io/badge/Discord-Join-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/PTmUuxuDXQ)
-
-# ParlamataCoinFlips
+﻿# ParlamataCoinFlips
 
 A custom plugin for **SCP: Secret Laboratory**, built with **Exiled 9.6.0-beta7**, that adds a unique risk-reward mechanic to the coin item. When players flip a coin, they receive a random good or bad outcome, ranging from healing and items to explosions and role swaps.
 
 ---
 
-## 🔧 Features
+## ✨ Features
 
 * 🎲 **Heads or Tails system** – 50/50 chance on each flip.
 * ✅ Good outcomes include:
-
   * Healing, bonus HP
   * Keycards, medical items, random guns
   * Speed boost, SCPs like 268 or 330
   * Teleportation to surface, role buffs, and more
-* ❌ Bad outcomes include:
 
+* ❌ Bad outcomes include:
   * HP loss, teleport to Class-D spawn
   * Warhead toggles, live grenades, random SCP transformation
   * Instant death, role swap, inventory wipe, random teleport
-* 📏 Size distortion effect (scale change)
+  * Inventory Swap (now excludes SCP roles entirely)
+  * Handcuff now **no longer clears inventory manually** (items drop as per game behavior)
+* 📏 Inventory swap only happens between **alive, non-SCP human roles**
+* 📏 SCPs including **Scp0492** are fully excluded from swap targets
+* 🔄 Size distortion effect (scale change)
 * 💬 Hints shown using **HintServiceMeow v5.4.0 Beta 1**, centered at configurable Y-axis
 * ⚙️ Fully configurable chance weights for each effect
 * ⏳ Cooldown system and coin usage limits
@@ -72,19 +72,26 @@ global_settings:
   rooms_to_teleport:
     - Surface
     - Lcz914
+  ignored_roles_for_swap:
+    - Spectator
+    - Scp079
+    - Overwatch
+    - Tutorial
 ```
 
 > **Note:** All chance values are weights, not true percentages. The system normalizes them internally.
 
 ---
 
-## 🧠 Developer Notes
+## 🧐 Developer Notes
 
 * Plugin uses `Player.Scale` for size change effects.
 * Effects are executed via `EffectHandler.ExecuteCoinFlip(Player)`.
 * Coin uses and cooldowns are tracked via `CoinUsesHandler`.
 * Hints rendered via `HintManager` with configurable duration and Y-position.
 * Uses Enum-based safe parsing for items and effects.
+* `inventory_swap` uses a strict filter: no SCP, no spectators, no dead players.
+* `handcuff` effect relies fully on base-game logic to drop inventory.
 
 ---
 

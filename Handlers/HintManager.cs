@@ -4,6 +4,7 @@ using HintServiceMeow.Core.Enum;
 using MEC;
 using PlayerRoles;
 using HintServiceMeow.Core.Utilities;
+using HintServiceMeow;
 
 namespace ParlamataCoinFlips.Handlers
 {

@@ -11,6 +11,7 @@ using System.Linq;
 using PlayerRoles;
 using Exiled.API.Features.Items;
 using MEC;
+using Exiled.API.Features.Doors;
 
 namespace ParlamataCoinFlips.Handlers
 {
@@ -60,7 +61,11 @@ namespace ParlamataCoinFlips.Handlers
         { "size_change", Config.GoodEvents.SizeChangeChance },
         { "random_item", Config.GoodEvents.RandomItemChance },
         { "speed_boost", Config.GoodEvents.SpeedBoostChance },
-        { "anti_death", Config.GoodEvents.AntiDeathChance }
+        { "anti_death", Config.GoodEvents.AntiDeathChance },
+        { "coin_theft", Config.GoodEvents.CoinTheftChance },
+        { "heal_allies", Config.GoodEvents.HealAlliesChance },
+        { "door_effect", Config.GoodEvents.DoorEffectChance },
+        { "scp_summon", Config.GoodEvents.ScpSummonChance }
     };
 
             string selected = GetWeightedRandom(effects);
@@ -163,6 +168,90 @@ namespace ParlamataCoinFlips.Handlers
                     HintManager.ShowHint(player, $"💨 Speed Surge! Intensity: {intensity}", 3f);
                     break;
 
+                case "heal_allies":
+                    var allies = Player.List
+                        .Where(p =>
+                            p != player &&
+                            p.IsAlive &&
+                            p.Role.Side == player.Role.Side &&
+                            Vector3.Distance(p.Position, player.Position) <= Config.GlobalSettings.HealAlliesRadius)
+                        .ToList();
+
+                    foreach (var ally in allies)
+                    {
+                        ally.Heal(Config.GlobalSettings.HealAlliesAmount);
+                        HintManager.ShowHint(ally, $"🫂 You were healed by {player.Nickname}!", 3f);
+                    }
+
+                    HintManager.ShowHint(player, $"💊 You healed {allies.Count} teammates nearby!", 3f);
+                    break;
+
+                case "coin_theft":
+                    var targetWithCoin = Player.List.FirstOrDefault(p =>
+                        p != player && p.IsAlive && p.Items.Any(i => i.Type == ItemType.Coin));
+
+                    if (targetWithCoin != null)
+                    {
+                        var stolenCoin = targetWithCoin.Items.First(i => i.Type == ItemType.Coin);
+                        targetWithCoin.RemoveItem(stolenCoin);
+                        player.AddItem(ItemType.Coin);
+
+                        HintManager.ShowHint(player, $"💰 You stole a coin from {targetWithCoin.Nickname}!", 3f);
+                        HintManager.ShowHint(targetWithCoin, "💸 Someone snatched a coin from you!", 3f);
+                    }
+                    else
+                    {
+                        HintManager.ShowHint(player, "❌ No coins found to steal.", 3f);
+                    }
+                    break;
+
+                case "scp_summon":
+                    var validScps = Player.Get(Side.Scp)
+                        .Where(p => p.IsAlive && p.Role.Type != RoleTypeId.Scp079 && p != player)
+                        .ToList();
+
+                    if (validScps.Any())
+                    {
+                        var summonedScp = validScps.GetRandom();
+                        summonedScp.Position = player.Position + Vector3.up;
+
+                        HintManager.ShowHint(player, $"😱 SCP {summonedScp.Role.Type} has been summoned to your location!", 3f);
+                        HintManager.ShowHint(summonedScp, $"🧲 You've been summoned to {player.Nickname}!", 3f);
+                    }
+                    else
+                    {
+                        HintManager.ShowHint(player, "❌ No SCPs available to summon.", 3f);
+                    }
+                    break;
+
+                case "door_effect":
+                    bool unlock = UnityEngine.Random.Range(0f, 1f) < 0.5f;
+
+                    var doors = Door.List.Where(d =>
+                        Vector3.Distance(d.Position, player.Position) <= Config.GlobalSettings.DoorEffectRadius &&
+                        !d.GameObject.name.ToLower().Contains("warhead") &&
+                        !d.Name.ToLower().Contains("surface") &&
+                        !d.Name.ToLower().Contains("checkpoint"));
+
+                    foreach (var door in doors)
+                    {
+                        if (unlock)
+                        {
+                            door.Unlock();
+                            door.ChangeLock(DoorLockType.None); // отключи
+                        }
+                        else
+                        {
+                            door.Lock(DoorLockType.AdminCommand); // заключи
+                            door.ChangeLock(DoorLockType.AdminCommand);
+                        }
+                    }
+
+                    HintManager.ShowHint(player, unlock
+                        ? "🔓 Nearby doors have been unlocked!"
+                        : "🔒 Nearby doors have been locked!", 3f);
+                    break;
+
                 case "anti_death":
                     // TODO: Implement death protection tracking
                     HintManager.ShowHint(player, "🛡 You feel invincible for 30 seconds...", 3f);
@@ -197,7 +286,10 @@ namespace ParlamataCoinFlips.Handlers
         { "inventory_swap", Config.BadEvents.InventorySwapChance },
         { "handcuff", Config.BadEvents.HandcuffChance },
         { "random_tp", Config.BadEvents.RandomTeleportChance },
-        { "infectious_touch", Config.BadEvents.InfectiousTouchChance }
+        { "infectious_touch", Config.BadEvents.InfectiousTouchChance },
+        { "coin_theft", Config.BadEvents.CoinTheftChance },
+        { "reveal_role", Config.BadEvents.RevealRoleChance },
+        { "dna_swap", Config.BadEvents.DnaSwapChance }
     };
 
             string selected = GetWeightedRandom(effects);
@@ -407,6 +499,26 @@ namespace ParlamataCoinFlips.Handlers
                     HintManager.ShowHint(player, "🔗 You’ve been cuffed and disarmed!", 3f);
                     break;
 
+                case "reveal_role":
+                    string zoneName = "Unknown";
+
+                    if (player.CurrentRoom.Zone == Exiled.API.Enums.ZoneType.LightContainment)
+                        zoneName = "Light Containment Zone";
+                    else if (player.CurrentRoom.Zone == Exiled.API.Enums.ZoneType.HeavyContainment)
+                        zoneName = "Heavy Containment Zone";
+                    else if (player.CurrentRoom.Zone == Exiled.API.Enums.ZoneType.Entrance)
+                        zoneName = "Entrance Zone";
+                    else if (player.CurrentRoom.Zone == Exiled.API.Enums.ZoneType.Surface)
+                        zoneName = "Surface";
+
+                    string message = $"🔍 [Reveal] {player.Nickname} is a {player.Role.Type} in {zoneName}!";
+
+                    foreach (var p in Player.List)
+                        p.Broadcast(4, message);
+
+                    HintManager.ShowHint(player, "📢 Your identity has been exposed!", 3f);
+                    break;
+
                 case "random_tp":
                     var room = Config.GlobalSettings.RoomsToTeleport.GetRandom();
                     if (Enum.TryParse(room, out RoomType roomName))
@@ -420,9 +532,89 @@ namespace ParlamataCoinFlips.Handlers
                     }
                     break;
 
+                case "coin_theft":
+                    var playerCoin = player.Items.FirstOrDefault(i => i.Type == ItemType.Coin);
+                    if (playerCoin != null)
+                    {
+                        var targetWithoutCoin = Player.List.FirstOrDefault(p =>
+                            p != player && p.IsAlive && !p.Items.Any(i => i.Type == ItemType.Coin));
+
+                        player.RemoveItem(playerCoin);
+
+                        if (targetWithoutCoin != null)
+                        {
+                            targetWithoutCoin.AddItem(ItemType.Coin);
+                            HintManager.ShowHint(player, $"💸 A coin was stolen from you!", 3f);
+                            HintManager.ShowHint(targetWithoutCoin, $"🎁 You mysteriously received a coin!", 3f);
+                        }
+                        else
+                        {
+                            HintManager.ShowHint(player, "💸 The coin slipped away into the void...", 3f);
+                        }
+                    }
+                    else
+                    {
+                        HintManager.ShowHint(player, "🪙 No coin to steal from you.", 3f);
+                    }
+                    break;
+
                 case "infectious_touch":
                     // Placeholder: This can be expanded with a custom infection system later
                     HintManager.ShowHint(player, "☣️ Your touch is... contagious?", 3f);
+                    break;
+
+                case "dna_swap":
+                    {
+                        var swapCandidates = Player.List.Where(p =>
+                            p != player &&
+                            p.IsAlive &&
+                            p.Role.Side != Side.Scp &&
+                            p.Role.Type != RoleTypeId.Spectator &&
+                            p.Role.Type != RoleTypeId.None &&
+                            p.Role.Type != RoleTypeId.Scp079).ToList();
+
+                        if (swapCandidates.Count > 0)
+                        {
+                            var swapTarget = swapCandidates.GetRandom();
+
+                            var targetRole = swapTarget.Role.Type;
+                            var targetHealth = swapTarget.Health;
+                            var targetInventory = swapTarget.Items.Select(i => i.Type).ToList();
+
+                            var playerRole = player.Role.Type;
+                            var playerHealth = player.Health;
+                            var playerInventory = player.Items.Select(i => i.Type).ToList();
+
+                            player.Role.Set(targetRole);
+                            swapTarget.Role.Set(playerRole);
+
+                            Timing.CallDelayed(0.5f, () =>
+                            {
+                                player.ClearInventory();
+                                foreach (var item in targetInventory)
+                                    player.AddItem(item);
+
+                                swapTarget.ClearInventory();
+                                foreach (var item in playerInventory)
+                                    swapTarget.AddItem(item);
+
+                                player.Health = targetHealth;
+                                swapTarget.Health = playerHealth;
+                            });
+
+                            HintManager.ShowHint(player, $"🧬 You swapped DNA with {swapTarget.Nickname}!", 3f);
+                            HintManager.ShowHint(swapTarget, $"🧬 {player.Nickname} just swapped DNA with you!", 3f);
+                        }
+                        else
+                        {
+                            HintManager.ShowHint(player, "❌ No valid target found for DNA Swap.", 3f);
+                        }
+
+                        break;
+                    }
+
+                case "name_change":
+                    ApplyNameChange(player);
                     break;
 
                 default:
@@ -432,6 +624,34 @@ namespace ParlamataCoinFlips.Handlers
 
             if (Config.Debug)
                 Log.Debug($"[EffectHandler] BAD effect applied: {selected}");
+        }
+
+        private static void ApplyNameChange(Player player)
+        {
+            var config = Plugin.Instance.Config.GlobalSettings;
+            if (config.FakeNames == null || config.FakeNames.Count == 0)
+            {
+                Log.Warn("[NameChangeTroll] No fake names defined in config.");
+                return;
+            }
+
+            string oldName = player.DisplayNickname;
+            string newName = config.FakeNames[UnityEngine.Random.Range(0, config.FakeNames.Count)];
+
+            player.DisplayNickname = newName;
+            Log.Debug($"[NameChangeTroll] {oldName} → {newName}");
+
+            if (config.FakeNameDuration > 0f)
+            {
+                Timing.CallDelayed(config.FakeNameDuration, () =>
+                {
+                    if (player.IsAlive)
+                    {
+                        player.DisplayNickname = oldName;
+                        Log.Debug($"[NameChangeTroll] Restored nickname of {player.Nickname} to original: {oldName}");
+                    }
+                });
+            }
         }
 
         private static void ApplyRandomEffect(Player player, bool isGood)

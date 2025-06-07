@@ -10,7 +10,7 @@ namespace ParlamataCoinFlips
         public override string Author => "LaFesta1749";
         public override string Name => "ParlamataCoinFlips";
         public override string Prefix => "parlamata_coinflips";
-        public override Version Version => new(1, 0, 1);
+        public override Version Version => new(1, 0, 2);
         public override Version RequiredExiledVersion => new(9, 6, 0);
 
         public static Plugin Instance { get; private set; } = null!;

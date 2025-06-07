@@ -10,17 +10,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ExMod.Exiled" Version="9.6.0-beta7" />
+    <PackageReference Include="ExMod.Exiled" Version="9.6.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="RueI" Version="2.1.2" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="Assembly-CSharp-firstpass">
       <HintPath>E:\Depedancies\MEC.dll</HintPath>
     </Reference>
+    <Reference Include="AudioPlayerApi">
+      <HintPath>E:\Depedancies\AudioPlayerApi.dll</HintPath>
+    </Reference>
     <Reference Include="HintServiceMeow">
-      <HintPath>E:\Depedancies\HintServiceMeow-Exiled.dll</HintPath>
+      <HintPath>E:\Depedancies\HintServiceMeow.dll</HintPath>
     </Reference>
     <Reference Include="LiteDB">
       <HintPath>..\..\..\OneDrive\Работен плот\Dev\helpsense\LiteDB.dll</HintPath>
@@ -28,8 +30,26 @@
     <Reference Include="Mirror">
       <HintPath>E:\Depedancies\Mirror.dll</HintPath>
     </Reference>
+    <Reference Include="NVorbis">
+      <HintPath>..\..\..\OneDrive\Работен плот\dependencies\NVorbis.dll</HintPath>
+    </Reference>
     <Reference Include="Pooling">
       <HintPath>E:\Depedancies\Pooling.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Buffers">
+      <HintPath>..\..\..\OneDrive\Работен плот\dependencies\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Memory">
+      <HintPath>..\..\..\OneDrive\Работен плот\dependencies\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics.Vectors">
+      <HintPath>..\..\..\OneDrive\Работен плот\dependencies\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe">
+      <HintPath>..\..\..\OneDrive\Работен плот\dependencies\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple">
+      <HintPath>..\..\..\OneDrive\Работен плот\dependencies\System.ValueTuple.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
       <HintPath>E:\Depedancies\UnityEngine.dll</HintPath>

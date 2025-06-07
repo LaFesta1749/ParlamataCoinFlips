@@ -46,6 +46,8 @@ namespace ParlamataCoinFlips.Config
         {
             "Bleeding", "Concussed", "Blinded"
         };
+        [Description("Sound settings for coin flip.")]
+        public SoundSettings CoinFlipSounds { get; set; } = new();
     }
 
     public class GoodEventsConfig
@@ -67,6 +69,12 @@ namespace ParlamataCoinFlips.Config
         public int RandomItemChance { get; set; } = 35;
         public int SpeedBoostChance { get; set; } = 15;
         public int AntiDeathChance { get; set; } = 5;
+        [Description("Chance to steal a coin from a random player who has one.")]
+        public int CoinTheftChance { get; set; } = 10;
+        public int HealAlliesChance { get; set; } = 15;
+        public int DoorEffectChance { get; set; } = 10;
+        [Description("Chance to summon a random SCP (excluding SCP-079).")]
+        public int ScpSummonChance { get; set; } = 5;
     }
 
     public class BadEventsConfig
@@ -95,6 +103,11 @@ namespace ParlamataCoinFlips.Config
         public int HandcuffChance { get; set; } = 10;
         public int RandomTeleportChance { get; set; } = 15;
         public int InfectiousTouchChance { get; set; } = 10;
+        [Description("Chance to lose your coin to another player.")]
+        public int CoinTheftChance { get; set; } = 10;
+        public int RevealRoleChance { get; set; } = 3;
+        [Description("Chance for the DNA Swap effect.")]
+        public int DnaSwapChance { get; set; } = 4;
     }
 
     public class GlobalSettingsConfig
@@ -137,5 +150,30 @@ namespace ParlamataCoinFlips.Config
         public string KickReason { get; set; } = "💀 The coin decided your fate.";
         public float BlackoutTime { get; set; } = 10f;
         public float GrenadeFuseTime { get; set; } = 3.25f;
+
+        [Description("List of fake names for NameChangeTroll effect.")]
+        public List<string> FakeNames { get; set; } = new()
+        {
+            "Dr. Fart", "SCP-420-J", "Toilet Shitter", "Small Banana Man", "Sussy Baka", "Peanut Licker"
+        };
+
+        [Description("Should fake name be restored after some time (in seconds)? Set 0 for permanent.")]
+        public float FakeNameDuration { get; set; } = 120f;
+
+        public float HealAlliesRadius { get; set; } = 15f;
+        public int HealAlliesAmount { get; set; } = 25;
+        public float DoorEffectRadius { get; set; } = 15f;
     }
+
+    public class SoundSettings
+    {
+        public bool Enabled { get; set; } = true;
+
+        public string HeadSoundFile { get; set; } = "coin_win.ogg";
+        public float HeadAutoDestroyDelay { get; set; } = 1.5f;
+
+        public string TailSoundFile { get; set; } = "coin_fail.ogg";
+        public float TailAutoDestroyDelay { get; set; } = 5.5f;
+    }
+
 }

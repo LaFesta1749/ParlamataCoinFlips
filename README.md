@@ -1,97 +1,157 @@
 ﻿# ParlamataCoinFlips
 
-A custom plugin for **SCP: Secret Laboratory**, built with **Exiled 9.6.0-beta7**, that adds a unique risk-reward mechanic to the coin item. When players flip a coin, they receive a random good or bad outcome, ranging from healing and items to explosions and role swaps.
+**Version:** Custom Development Build
+
+A chaotic and feature-rich plugin for SCP: Secret Laboratory where flipping a coin can trigger good or bad events, custom sounds, or absurd consequences. Designed for SCP Bulgaria ПАРЛАМАТА.
 
 ---
 
-## ✨ Features
+## ✅ Added Features
 
-* 🎲 **Heads or Tails system** – 50/50 chance on each flip.
-* ✅ Good outcomes include:
-  * Healing, bonus HP
-  * Keycards, medical items, random guns
-  * Speed boost, SCPs like 268 or 330
-  * Teleportation to surface, role buffs, and more
+### 🔊 **Custom Coin Flip Sounds**
 
-* ❌ Bad outcomes include:
-  * HP loss, teleport to Class-D spawn
-  * Warhead toggles, live grenades, random SCP transformation
-  * Instant death, role swap, inventory wipe, random teleport
-  * Inventory Swap (now excludes SCP roles entirely)
-  * Handcuff now **no longer clears inventory manually** (items drop as per game behavior)
-* 📏 Inventory swap only happens between **alive, non-SCP human roles**
-* 📏 SCPs including **Scp0492** are fully excluded from swap targets
-* 🔄 Size distortion effect (scale change)
-* 💬 Hints shown using **HintServiceMeow v5.4.0 Beta 1**, centered at configurable Y-axis
-* ⚙️ Fully configurable chance weights for each effect
-* ⏳ Cooldown system and coin usage limits
-* ⟳ Coin items have randomized use counts per round
-* 🛡️ Configurable ignored roles, item pools, SCP targets, and more
+* **Heads** and **Tails** can have separate sounds.
+* Uses `AudioPlayerApi` with 3D spatial audio.
+* Configure sound filenames in:
+
+  ```yml
+  CoinFlipSounds:
+    Enabled: true
+    HeadSoundFile: "heads.mp3"
+    TailSoundFile: "tails.mp3"
+    HeadAutoDestroyDelay: 2.5
+    TailAutoDestroyDelay: 2.5
+  ```
+* Place sound files in: `.../Configs/ParlamataCoinFlips/audio/`
 
 ---
 
-## 📂 Installation
+## 🟢 Good Coin Effects
 
-1. Place `ParlamataCoinFlips.dll` in your server's `Exiled/Plugins/` directory.
-2. Make sure you are running **Exiled 9.6.0-beta7**.
-3. Download and install **HintServiceMeow v5.4.0 Beta 2**.
-4. Restart your server to generate the config file.
+| Effect Name     | Description                                                                    |
+| --------------- | ------------------------------------------------------------------------------ |
+| `coin_theft`    | Steals a coin from another player (if any).                                    |
+| `heal_allies`   | Heals nearby teammates. Radius + Heal amount configurable.                     |
+| `door_effect`   | Unlocks or locks nearby doors randomly. Radius and durations are configurable. |
+| `scp_summon`    | Random SCP (excluding 079) is summoned on top of the flipper.                  |
+| `keycard`       | Gives the player a containment or facility manager keycard.                    |
+| `medical_kit`   | Grants a medkit and painkillers.                                               |
+| `tp_escape`     | Teleports player to escape area.                                               |
+| `heal`          | Heals the player for 25 HP.                                                    |
+| `bonus_hp`      | Adds 10% bonus HP.                                                             |
+| `hat`           | Gives SCP-268.                                                                 |
+| `good_effect`   | Random good status effect (e.g. speed, invisibility).                          |
+| `logicer`       | Logicer with 1 ammo.                                                           |
+| `lightbulb`     | Gives SCP-2176.                                                                |
+| `pink_candy`    | Spawns SCP-330 with pink candy.                                                |
+| `bad_revo`      | Gives a revolver with 1 bullet.                                                |
+| `empty_hid`     | Gives a MicroHID with 0 charge.                                                |
+| `force_respawn` | Triggers MTF arrival via CASSIE.                                               |
+| `size_change`   | Changes player scale.                                                          |
+| `random_item`   | Spawns random item from config.                                                |
+| `speed_boost`   | Applies a movement boost effect.                                               |
+| `anti_death`    | Grants pseudo-invincibility (placeholder only).                                |
 
 ---
 
-## ⚙️ Configuration (`config.yml`)
+## 🔴 Bad Coin Effects
 
-```yaml
-good_events:
-  keycard_chance: 20
-  medical_kit_chance: 35
-  teleport_to_escape_chance: 5
-  heal_chance: 10
-  bonus_hp_chance: 10
-  ...
+| Effect Name         | Description                                                       |
+| ------------------- | ----------------------------------------------------------------- |
+| `coin_theft`        | A coin is taken from you and given to someone else (if possible). |
+| `reveal_role`       | Broadcasts your name, role, and zone to the entire server.        |
+| `dna_swap`          | Swaps role, HP, and inventory with a random non-SCP player.       |
+| `hp_reduction`      | Reduces your health by 30%.                                       |
+| `tp_to_class_d`     | Sends you back to the D-Class spawn.                              |
+| `bad_effect`        | Random negative status effect.                                    |
+| `warhead_toggle`    | Starts or cancels warhead.                                        |
+| `lights_out`        | Turns off all facility lights.                                    |
+| `live_he`           | Spawns live HE grenade with short fuse.                           |
+| `troll_flash`       | Spawns live flashbang.                                            |
+| `scp_tp`            | Teleports you to a random SCP.                                    |
+| `one_hp`            | Sets your health to 1.                                            |
+| `primed_vase`       | Gives you a dangerous cold vase.                                  |
+| `tantrum`           | Forces tantrum effect.                                            |
+| `fake_cassie`       | Fake CASSIE announcement.                                         |
+| `random_scp`        | Transforms you into a random SCP.                                 |
+| `inventory_reset`   | Clears your inventory.                                            |
+| `class_swap`        | Changes your role to a counterpart.                               |
+| `instant_explosion` | Instant HE grenade detonation.                                    |
+| `player_swap`       | Swaps positions with another player.                              |
+| `kick`              | Kicks the player from the server (if allowed).                    |
+| `spectator_replace` | Swaps body with a spectator.                                      |
+| `tesla_tp`          | Teleports player to Tesla zone.                                   |
+| `inventory_swap`    | Swaps inventories with a random player.                           |
+| `handcuff`          | Handcuffs the player.                                             |
+| `random_tp`         | Teleports to random room from config.                             |
+| `infectious_touch`  | Placeholder for infection effect.                                 |
+| `name_change`       | Temporarily changes your nickname.                                |
 
-bad_events:
-  hp_reduction_chance: 20
-  tp_to_class_d_chance: 5
-  bad_effect_chance: 20
-  ...
+---
 
-global_settings:
-  enable_cooldown: true
-  cooldown_hint: "⏳ Please wait before flipping again."
-  max_uses_per_round: 3
-  max_uses_hint: "🚫 No more coin flips allowed this round."
-  red_card_chance: 15
-  items_to_give:
-    - Adrenaline
-    - GunE11SR
-    - Coin
-  valid_scps:
-    - Scp049
-    - Scp173
-  rooms_to_teleport:
-    - Surface
-    - Lcz914
-  ignored_roles_for_swap:
-    - Spectator
-    - Scp079
-    - Overwatch
-    - Tutorial
+## 🔧 Config Additions
+
+```yml
+GlobalSettings:
+  HealAlliesRadius: 10
+  HealAlliesAmount: 35
+  DoorEffectRadius: 15
+  # Time delays are baked into effect logic (e.g. lock = 30s, unlock = 5s)
+
+GoodEvents:
+  CoinTheftChance: 6
+  HealAlliesChance: 15
+  DoorEffectChance: 12
+  ScpSummonChance: 5
+  # ... other chances remain
+
+BadEvents:
+  CoinTheftChance: 5
+  RevealRoleChance: 10
+  DnaSwapChance: 4
+  # ... other chances remain
 ```
 
-> **Note:** All chance values are weights, not true percentages. The system normalizes them internally.
+---
+
+## ⚠️ Notes
+
+* **Anti-Exploit:** Checks if players are alive, not SCP, and not spectators for swap logic.
+* **Sound Failover:** If audio files are missing, plugin logs a warning.
+* **Dependencies:**
+
+  * `AudioPlayerApi.dll` must be referenced and properly loaded.
 
 ---
 
-## 🧐 Developer Notes
+## 🛠️ Upcoming / Skipped
 
-* Plugin uses `Player.Scale` for size change effects.
-* Effects are executed via `EffectHandler.ExecuteCoinFlip(Player)`.
-* Coin uses and cooldowns are tracked via `CoinUsesHandler`.
-* Hints rendered via `HintManager` with configurable duration and Y-position.
-* Uses Enum-based safe parsing for items and effects.
-* `inventory_swap` uses a strict filter: no SCP, no spectators, no dead players.
-* `handcuff` effect relies fully on base-game logic to drop inventory.
+* `Flip Trap` and `Clone Yourself` were intentionally skipped.
+* Additional effects may be added via config without core changes.
+
+---
+
+## 🔄 Legacy Core Logic Overview
+
+* Weighted random effect logic using total chance sums.
+* Uses `HintManager` for UI feedback.
+* Uses `Timing.CallDelayed` to manage audio cleanup and delayed logic.
+* Multiple fallbacks and no-crash paths for all critical logic.
+* `EffectHandler.cs` orchestrates all result logic.
+
+---
+
+## 🧪 Testing Checklist
+
+* Flip coin -> check audio
+* Flip coin -> verify cooldown or max use
+* Flip coin -> get Good/Bad outcome, validate hint/effect
+* Flip coin -> check logs if debug enabled
+* Audio -> confirm correct file used and destroyed
+* All effects -> validate config weight controls probability
+
+---
+
 
 ---
 
@@ -109,5 +169,6 @@ MIT – Do whatever you want, just don't remove credits.
 
 ## 🛠 Built With
 
-* [Exiled](https://github.com/ExMod-Team/EXILED/releases) 9.6.0-beta7
-* [HintServiceMeow](https://github.com/MeowServer/HintServiceMeow) v5.4.0 Beta 2
+* [Exiled](https://github.com/ExSLMod-Team/EXILED/)
+* [HintServiceMeow](https://github.com/MeowServer/HintServiceMeow)
+* [AudioPlayerApi](https://github.com/Killers0992/AudioPlayerApi)
